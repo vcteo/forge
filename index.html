@@ -2,7 +2,7 @@
 <!-- 
   ╔══════════════════════════════════════════════╗
   ║  FORGE — Your Pickleball Mettle              ║
-  ║  Version: 5.6 — Empty States                 ║
+  ║  Version: 5.7 — Demo Isolation Fix           ║
   ║  Date: 2025-04-30                            ║
   ║  Changes: Full backend wiring via fetch()    ║
   ║           sessionStorage auth (session-long) ║
@@ -3698,7 +3698,18 @@ function showWelcome() {
 // ==========================================================
 
 async function launchApp() {
-  // Show app shell immediately (skeletons show while loading)
+  // ── Step 1: Immediately wipe any stale in-memory data ──
+  // Critical: if user came from demo mode, arrays may still hold
+  // demo data. Clear them before showing a single pixel of UI.
+  players = [];
+  matches = [];
+  pairs   = [];
+
+  // ── Step 2: Reset all rendered screens to blank/skeleton state ──
+  // Prevents stale demo data flashing on screen while fetch is in-flight.
+  _clearRenderedScreens();
+
+  // ── Step 3: Show app shell with skeletons ──
   document.getElementById('appShell').style.display = 'block';
   document.getElementById('navBar').classList.add('visible');
   document.getElementById('appHeader').classList.add('visible');
@@ -3717,21 +3728,57 @@ async function launchApp() {
     matches = matchesRes.matches || [];
     lastKnownVersion = matchesRes.writeVersion || lastKnownVersion;
 
-    // Build pairs in-memory from match history
     buildPairsFromMatches();
-
-    // Render all screens
     renderPlayers();
     renderAnalytics();
     renderLeaderboard();
-
-    // Start background sync
     startBackgroundSync();
 
   } catch(e) {
     showError('Failed to load data. Please refresh.');
     console.error('launchApp error:', e);
   }
+}
+
+// Wipes all rendered screen content back to blank/skeleton state.
+// Called before any data fetch so stale DOM is never visible.
+function _clearRenderedScreens() {
+  // Players screen — show skeleton, hide list
+  const skelEl = document.getElementById('skeletonList');
+  const listEl = document.getElementById('playerList');
+  const emptyEl = document.getElementById('emptyState');
+  const inactiveEl = document.getElementById('inactiveSection');
+  if (skelEl) skelEl.style.display = 'flex';
+  if (listEl) { listEl.innerHTML = ''; listEl.style.display = 'none'; }
+  if (emptyEl) emptyEl.classList.remove('show');
+  if (inactiveEl) inactiveEl.style.display = 'none';
+  document.getElementById('headerBadge').textContent = '...';
+
+  // Analytics — hide chips and metric cards, reset empty state
+  const chipsEl = document.getElementById('playerChips');
+  const cardsEl = document.getElementById('individualMetricCards');
+  const analyticsEmptyEl = document.getElementById('analyticsIndividualEmpty');
+  const pairCardsEl = document.getElementById('pairCards');
+  if (chipsEl) chipsEl.innerHTML = '';
+  if (cardsEl) cardsEl.style.display = 'none';
+  if (analyticsEmptyEl) analyticsEmptyEl.style.display = 'none';
+  if (pairCardsEl) pairCardsEl.innerHTML = '';
+
+  // Leaderboard — show skeletons, hide lists
+  const lbSkelInd = document.getElementById('lbSkeletonIndividual');
+  const lbListInd = document.getElementById('lbListIndividual');
+  const lbSkelPairs = document.getElementById('lbSkeletonPairs');
+  const lbListPairs = document.getElementById('lbListPairs');
+  if (lbSkelInd)  { lbSkelInd.style.display = 'flex'; }
+  if (lbListInd)  { lbListInd.innerHTML = ''; lbListInd.style.display = 'none'; }
+  if (lbSkelPairs){ lbSkelPairs.style.display = 'flex'; }
+  if (lbListPairs){ lbListPairs.innerHTML = ''; lbListPairs.style.display = 'none'; }
+
+  // Match list — clear
+  const matchWrap = document.getElementById('matchListWrap');
+  const matchCount = document.getElementById('matchCountLabel');
+  if (matchWrap) matchWrap.innerHTML = '';
+  if (matchCount) matchCount.textContent = '';
 }
 
 // ==========================================================
