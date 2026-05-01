@@ -2,7 +2,7 @@
 <!-- 
   ╔══════════════════════════════════════════════╗
   ║  FORGE — Your Pickleball Mettle              ║
-  ║  Version: 5.0                                ║
+  ║  Version: 5.6 — Empty States                 ║
   ║  Date: 2025-04-30                            ║
   ║  Changes: Full backend wiring via fetch()    ║
   ║           sessionStorage auth (session-long) ║
@@ -22,6 +22,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Forge">
 <meta name="theme-color" content="#f7f7f5">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjQUFEQzMyIi8+CiAgPHRleHQgeD0iMTYiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI2IiBmb250LXdlaWdodD0iOTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGYwZjBmIiBsZXR0ZXItc3BhY2luZz0iLTEiPkY8L3RleHQ+Cjwvc3ZnPg==">
+<link rel="alternate icon" type="image/png" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjQUFEQzMyIi8+CiAgPHRleHQgeD0iMTYiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI2IiBmb250LXdlaWdodD0iOTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGYwZjBmIiBsZXR0ZXItc3BhY2luZz0iLTEiPkY8L3RleHQ+Cjwvc3ZnPg==">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjQUFEQzMyIi8+CiAgPHRleHQgeD0iMTYiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwgQmxhY2ssIEFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI2IiBmb250LXdlaWdodD0iOTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGYwZjBmIiBsZXR0ZXItc3BhY2luZz0iLTEiPkY8L3RleHQ+Cjwvc3ZnPg==">
+<meta name="msapplication-TileColor" content="#AADC32">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════
@@ -118,7 +122,7 @@ body {
    SHARED: GLOBAL INTERACTION LOCK
 ════════════════════════════════════════════ */
 .interaction-lock {
-  position: fixed;
+  position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 600;
   display: none;
@@ -2351,6 +2355,98 @@ body {
 .add-rating-input::-webkit-outer-spin-button,
 .add-rating-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .add-rating-input:focus { border-color: var(--accent); }
+
+/* ════════════════════════════════════════════
+   DEMO MODE
+════════════════════════════════════════════ */
+.demo-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0 16px; color: var(--grey-mid);
+  font-size: 12px; font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.demo-divider::before, .demo-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--grey-light);
+}
+.demo-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  border: 2px solid var(--grey-light); background: var(--white);
+  font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  font-weight: 700; font-size: 16px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--grey-dark); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.demo-btn:hover, .demo-btn:active {
+  border-color: var(--accent); background: var(--accent-bg); color: var(--accent-dim);
+}
+.demo-banner {
+  display: none; position: absolute;
+  top: calc(var(--topbar-h) + var(--header-h));
+  left: 0; right: 0;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  color: var(--accent);
+  font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  font-weight: 700; font-size: 12px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 8px 16px;
+  align-items: center; justify-content: space-between; gap: 12px;
+  z-index: 350;
+}
+.demo-banner.show { display: flex; }
+.demo-banner-text { flex: 1; }
+.demo-banner-exit {
+  background: none; border: 1.5px solid var(--accent); border-radius: 8px;
+  padding: 4px 12px;
+  font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--accent); cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.demo-banner-exit:active { background: var(--accent); color: var(--black); }
+.screen.demo-offset {
+  padding-top: calc(var(--topbar-h) + var(--header-h) + 36px);
+}
+
+/* Analytics individual empty state */
+.analytics-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  text-align: center;
+  gap: 12px;
+}
+.analytics-empty-icon { font-size: 44px; opacity: 0.3; }
+.analytics-empty-title {
+  font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  font-weight: 700; font-size: 17px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--grey-mid);
+}
+.analytics-empty-sub { font-size: 13px; color: var(--grey-mid); line-height: 1.5; }
+
+/* Add match no-players notice */
+.no-players-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 10px;
+  text-align: center;
+  background: var(--white);
+  border: 1.5px dashed var(--grey-light);
+  border-radius: 16px;
+  margin: 4px 0;
+}
+.no-players-notice-icon { font-size: 32px; opacity: 0.35; }
+.no-players-notice-text {
+  font-family: 'Barlow Condensed', -apple-system, sans-serif;
+  font-weight: 700; font-size: 15px; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--grey-mid);
+}
+.no-players-notice-sub { font-size: 12px; color: var(--grey-mid); }
 </style>
 </head>
 <body>
@@ -2408,7 +2504,7 @@ body {
       </svg>
       Incorrect password. Please try again.
     </div>
-    <button class="enter-btn" id="enterBtn" onclick="handleEnter()">
+    <button class="enter-btn" id="enterBtn" type="button" onclick="handleEnter()">
       <span class="btn-text">
         Enter &nbsp;
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -2417,7 +2513,14 @@ body {
       </span>
       <div class="btn-spinner"></div>
     </button>
-    <div class="pw-hint">Shared with your group by the organiser</div>
+    <div class="pw-hint" id="pwHint">Shared with your group by the organiser</div>
+    <div class="demo-divider">or</div>
+    <button class="demo-btn" type="button" onclick="enterDemoMode()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      Try Demo
+    </button>
   </div>
 </div>
 
@@ -2425,6 +2528,12 @@ body {
      APP SHELL (hidden until login)
 ══════════════════════════════════════ -->
 <div id="appShell" style="display:none;">
+
+  <!-- Demo banner — only visible in demo mode -->
+  <div class="demo-banner" id="demoBanner">
+    <span class="demo-banner-text">🎮 Demo Mode — changes reset on exit</span>
+    <button class="demo-banner-exit" type="button" onclick="exitDemoMode()">Exit Demo</button>
+  </div>
 
   <!-- Shared Header -->
   <div class="app-header visible" id="appHeader">
@@ -2515,7 +2624,17 @@ body {
       <!-- Player chips -->
       <div class="player-chips" id="playerChips"></div>
 
+      <!-- Empty state for individual analytics (shown when no players) -->
+      <div id="analyticsIndividualEmpty" style="display:none;">
+        <div class="analytics-empty">
+          <div class="analytics-empty-icon">📊</div>
+          <div class="analytics-empty-title">No Individual Data Yet</div>
+          <div class="analytics-empty-sub">Individual stats appear after matches are logged.</div>
+        </div>
+      </div>
+
       <!-- M1: Rating Trend -->
+      <div id="individualMetricCards">
       <div class="metric-card">
         <div class="metric-header">
           <span class="metric-title">DUPR Rating Trend</span>
@@ -2574,6 +2693,7 @@ body {
         </div>
         <div id="clutchContent"></div>
       </div>
+      </div><!-- /individualMetricCards -->
 
     </div><!-- /panelIndividual -->
 
@@ -2935,6 +3055,198 @@ body {
 // == Backend URL ==
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxEQd8k0FXEXfeXri-03j6GYaLTSdMVTvnKcuTm88i68Vr1RpEK1yf8BUiZYuK0Is9tIw/exec';
 
+
+// ═══════════════════════════════════════════════
+// DEMO MODE
+// ═══════════════════════════════════════════════
+// When true: all data is local, zero backend calls,
+// resets completely on exit. Real users unaffected.
+let isDemoMode = false;
+
+// Snapshot of original demo data — never mutated,
+// used to reset when user exits demo.
+const DEMO_DATA = (function() {
+  const players = [
+    { id:'d1', name:'Kai', status:'active', rating:3.72, games:23, ratingHistory:[3.95, 3.96, 3.73, 3.56, 3.62, 3.7, 3.66, 3.71, 3.83, 3.72], last5:["W", "L", "W", "W", "L"], clutchW:3, clutchL:1, removedDate:null },
+    { id:'d2', name:'Priya', status:'active', rating:3.47, games:29, ratingHistory:[3.44, 3.33, 3.4, 3.38, 3.32, 3.24, 3.37, 3.5, 3.51, 3.47], last5:["L", "W", "W", "W", "L"], clutchW:7, clutchL:6, removedDate:null },
+    { id:'d3', name:'Marco', status:'active', rating:3.52, games:26, ratingHistory:[3.28, 3.3, 3.24, 3.14, 3.21, 3.38, 3.51, 3.61, 3.56, 3.52], last5:["W", "W", "W", "L", "L"], clutchW:8, clutchL:10, removedDate:null },
+    { id:'d4', name:'Yuki', status:'active', rating:3.34, games:24, ratingHistory:[3.31, 3.41, 3.35, 3.18, 3.22, 3.25, 3.29, 3.28, 3.23, 3.34], last5:["W", "W", "L", "L", "W"], clutchW:6, clutchL:5, removedDate:null },
+    { id:'d5', name:'Sasha', status:'active', rating:3.79, games:24, ratingHistory:[3.27, 3.37, 3.45, 3.41, 3.28, 3.38, 3.42, 3.54, 3.68, 3.79], last5:["W", "W", "W", "W", "W"], clutchW:7, clutchL:5, removedDate:null },
+    { id:'d6', name:'Reuben', status:'active', rating:3.75, games:20, ratingHistory:[3.57, 3.63, 3.61, 3.54, 3.77, 3.83, 3.89, 3.76, 3.73, 3.75], last5:["W", "W", "L", "L", "W"], clutchW:5, clutchL:2, removedDate:null },
+    { id:'d7', name:'Divya', status:'active', rating:3.26, games:28, ratingHistory:[3.12, 3.18, 3.08, 3.25, 3.19, 3.09, 3.05, 3.1, 3.12, 3.26], last5:["L", "L", "W", "W", "W"], clutchW:9, clutchL:13, removedDate:null },
+    { id:'d8', name:'Tomas', status:'active', rating:3.56, games:20, ratingHistory:[3.74, 3.73, 3.84, 3.83, 3.9, 3.92, 3.93, 3.81, 3.67, 3.56], last5:["W", "W", "L", "L", "L"], clutchW:6, clutchL:2, removedDate:null },
+    { id:'d9', name:'Lena', status:'active', rating:3.35, games:21, ratingHistory:[3.73, 3.62, 3.61, 3.55, 3.68, 3.55, 3.45, 3.33, 3.31, 3.35], last5:["L", "L", "L", "L", "W"], clutchW:5, clutchL:7, removedDate:null },
+    { id:'d10', name:'Farhan', status:'active', rating:3.26, games:25, ratingHistory:[3.62, 3.54, 3.58, 3.45, 3.43, 3.39, 3.38, 3.36, 3.22, 3.26], last5:["L", "L", "L", "L", "W"], clutchW:6, clutchL:7, removedDate:null }
+  ];
+
+  const matches = [
+    { id:'dm001', date:'2025-01-11', teamA:['d2','d1'], teamB:['d5','d10'], scoring:'standard', points:'11', scores:[{a:11,b:4}], ratingChanges:[] },
+    { id:'dm002', date:'2025-01-11', teamA:['d9','d2'], teamB:['d7','d1'], scoring:'standard', points:'11', scores:[{a:11,b:5}], ratingChanges:[] },
+    { id:'dm003', date:'2025-01-11', teamA:['d10','d1'], teamB:['d4','d6'], scoring:'rally', points:'21', scores:[{a:21,b:15},{a:21,b:17}], ratingChanges:[] },
+    { id:'dm004', date:'2025-01-11', teamA:['d1','d3'], teamB:['d7','d9'], scoring:'standard', points:'11', scores:[{a:11,b:9},{a:11,b:9}], ratingChanges:[] },
+    { id:'dm005', date:'2025-01-11', teamA:['d7','d2'], teamB:['d6','d10'], scoring:'standard', points:'11', scores:[{a:4,b:11}], ratingChanges:[] },
+    { id:'dm006', date:'2025-01-11', teamA:['d8','d9'], teamB:['d2','d4'], scoring:'standard', points:'11', scores:[{a:11,b:7},{a:5,b:11},{a:8,b:11}], ratingChanges:[] },
+    { id:'dm007', date:'2025-01-18', teamA:['d4','d5'], teamB:['d2','d7'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm008', date:'2025-01-18', teamA:['d6','d3'], teamB:['d10','d9'], scoring:'standard', points:'11', scores:[{a:5,b:11}], ratingChanges:[] },
+    { id:'dm009', date:'2025-01-18', teamA:['d3','d9'], teamB:['d4','d2'], scoring:'rally', points:'15', scores:[{a:15,b:12},{a:11,b:15},{a:15,b:13}], ratingChanges:[] },
+    { id:'dm010', date:'2025-01-18', teamA:['d1','d6'], teamB:['d7','d3'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:11,b:8},{a:11,b:6}], ratingChanges:[] },
+    { id:'dm011', date:'2025-01-18', teamA:['d8','d3'], teamB:['d5','d2'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:11,b:5},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm012', date:'2025-01-18', teamA:['d6','d4'], teamB:['d3','d5'], scoring:'rally', points:'15', scores:[{a:15,b:13}], ratingChanges:[] },
+    { id:'dm013', date:'2025-01-27', teamA:['d3','d7'], teamB:['d2','d4'], scoring:'rally', points:'15', scores:[{a:9,b:15},{a:11,b:15}], ratingChanges:[] },
+    { id:'dm014', date:'2025-01-27', teamA:['d9','d1'], teamB:['d2','d6'], scoring:'rally', points:'21', scores:[{a:19,b:21},{a:17,b:21}], ratingChanges:[] },
+    { id:'dm015', date:'2025-01-27', teamA:['d7','d3'], teamB:['d8','d1'], scoring:'standard', points:'11', scores:[{a:5,b:11}], ratingChanges:[] },
+    { id:'dm016', date:'2025-01-27', teamA:['d2','d5'], teamB:['d4','d10'], scoring:'standard', points:'11', scores:[{a:5,b:11},{a:11,b:9},{a:5,b:11}], ratingChanges:[] },
+    { id:'dm017', date:'2025-01-27', teamA:['d8','d1'], teamB:['d2','d3'], scoring:'standard', points:'11', scores:[{a:11,b:5}], ratingChanges:[] },
+    { id:'dm018', date:'2025-01-27', teamA:['d2','d10'], teamB:['d8','d7'], scoring:'standard', points:'11', scores:[{a:11,b:8},{a:8,b:11},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm019', date:'2025-02-07', teamA:['d10','d7'], teamB:['d4','d5'], scoring:'standard', points:'11', scores:[{a:4,b:11},{a:4,b:11}], ratingChanges:[] },
+    { id:'dm020', date:'2025-02-07', teamA:['d6','d8'], teamB:['d9','d1'], scoring:'standard', points:'11', scores:[{a:11,b:9},{a:11,b:5}], ratingChanges:[] },
+    { id:'dm021', date:'2025-02-07', teamA:['d9','d4'], teamB:['d10','d1'], scoring:'standard', points:'11', scores:[{a:8,b:11}], ratingChanges:[] },
+    { id:'dm022', date:'2025-02-07', teamA:['d2','d1'], teamB:['d6','d9'], scoring:'rally', points:'21', scores:[{a:21,b:18},{a:21,b:15}], ratingChanges:[] },
+    { id:'dm023', date:'2025-02-07', teamA:['d3','d8'], teamB:['d4','d7'], scoring:'rally', points:'15', scores:[{a:13,b:15}], ratingChanges:[] },
+    { id:'dm024', date:'2025-02-07', teamA:['d2','d7'], teamB:['d6','d4'], scoring:'rally', points:'15', scores:[{a:15,b:8}], ratingChanges:[] },
+    { id:'dm025', date:'2025-02-15', teamA:['d7','d6'], teamB:['d2','d8'], scoring:'standard', points:'11', scores:[{a:11,b:8},{a:11,b:6}], ratingChanges:[] },
+    { id:'dm026', date:'2025-02-15', teamA:['d3','d5'], teamB:['d8','d2'], scoring:'standard', points:'11', scores:[{a:11,b:9},{a:9,b:11},{a:11,b:5}], ratingChanges:[] },
+    { id:'dm027', date:'2025-02-15', teamA:['d2','d4'], teamB:['d3','d9'], scoring:'rally', points:'15', scores:[{a:15,b:13},{a:15,b:12}], ratingChanges:[] },
+    { id:'dm028', date:'2025-02-15', teamA:['d7','d1'], teamB:['d10','d3'], scoring:'rally', points:'15', scores:[{a:10,b:15},{a:15,b:12},{a:15,b:12}], ratingChanges:[] },
+    { id:'dm029', date:'2025-02-25', teamA:['d10','d9'], teamB:['d1','d6'], scoring:'standard', points:'11', scores:[{a:11,b:6},{a:5,b:11},{a:11,b:5}], ratingChanges:[] },
+    { id:'dm030', date:'2025-02-25', teamA:['d1','d9'], teamB:['d2','d7'], scoring:'standard', points:'11', scores:[{a:11,b:4}], ratingChanges:[] },
+    { id:'dm031', date:'2025-02-25', teamA:['d4','d7'], teamB:['d2','d5'], scoring:'standard', points:'11', scores:[{a:5,b:11}], ratingChanges:[] },
+    { id:'dm032', date:'2025-02-25', teamA:['d2','d7'], teamB:['d6','d3'], scoring:'standard', points:'11', scores:[{a:8,b:11},{a:7,b:11}], ratingChanges:[] },
+    { id:'dm033', date:'2025-03-10', teamA:['d5','d8'], teamB:['d6','d7'], scoring:'standard', points:'11', scores:[{a:11,b:5},{a:9,b:11},{a:11,b:9}], ratingChanges:[] },
+    { id:'dm034', date:'2025-03-10', teamA:['d9','d5'], teamB:['d3','d8'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:8,b:11}], ratingChanges:[] },
+    { id:'dm035', date:'2025-03-10', teamA:['d8','d9'], teamB:['d5','d10'], scoring:'rally', points:'21', scores:[{a:17,b:21},{a:21,b:19},{a:21,b:18}], ratingChanges:[] },
+    { id:'dm036', date:'2025-03-10', teamA:['d2','d10'], teamB:['d3','d8'], scoring:'standard', points:'11', scores:[{a:8,b:11},{a:4,b:11}], ratingChanges:[] },
+    { id:'dm037', date:'2025-03-21', teamA:['d8','d5'], teamB:['d1','d10'], scoring:'rally', points:'15', scores:[{a:13,b:15}], ratingChanges:[] },
+    { id:'dm038', date:'2025-03-21', teamA:['d6','d3'], teamB:['d5','d2'], scoring:'rally', points:'15', scores:[{a:9,b:15},{a:13,b:15}], ratingChanges:[] },
+    { id:'dm039', date:'2025-03-21', teamA:['d2','d10'], teamB:['d3','d5'], scoring:'standard', points:'11', scores:[{a:11,b:5},{a:8,b:11},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm040', date:'2025-03-21', teamA:['d1','d5'], teamB:['d6','d7'], scoring:'standard', points:'11', scores:[{a:4,b:11}], ratingChanges:[] },
+    { id:'dm041', date:'2025-03-21', teamA:['d4','d2'], teamB:['d6','d7'], scoring:'rally', points:'21', scores:[{a:15,b:21},{a:14,b:21}], ratingChanges:[] },
+    { id:'dm042', date:'2025-03-21', teamA:['d3','d4'], teamB:['d10','d7'], scoring:'standard', points:'11', scores:[{a:8,b:11}], ratingChanges:[] },
+    { id:'dm043', date:'2025-04-02', teamA:['d4','d5'], teamB:['d3','d7'], scoring:'standard', points:'11', scores:[{a:11,b:6}], ratingChanges:[] },
+    { id:'dm044', date:'2025-04-02', teamA:['d4','d10'], teamB:['d8','d3'], scoring:'standard', points:'11', scores:[{a:8,b:11}], ratingChanges:[] },
+    { id:'dm045', date:'2025-04-02', teamA:['d1','d4'], teamB:['d7','d3'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:4,b:11}], ratingChanges:[] },
+    { id:'dm046', date:'2025-04-02', teamA:['d9','d7'], teamB:['d6','d1'], scoring:'standard', points:'11', scores:[{a:8,b:11},{a:5,b:11}], ratingChanges:[] },
+    { id:'dm047', date:'2025-04-02', teamA:['d5','d1'], teamB:['d2','d10'], scoring:'rally', points:'15', scores:[{a:15,b:10},{a:15,b:9}], ratingChanges:[] },
+    { id:'dm048', date:'2025-04-10', teamA:['d10','d4'], teamB:['d5','d1'], scoring:'rally', points:'15', scores:[{a:15,b:12},{a:11,b:15},{a:15,b:10}], ratingChanges:[] },
+    { id:'dm049', date:'2025-04-10', teamA:['d6','d10'], teamB:['d2','d9'], scoring:'standard', points:'11', scores:[{a:7,b:11},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm050', date:'2025-04-10', teamA:['d5','d9'], teamB:['d3','d2'], scoring:'rally', points:'15', scores:[{a:8,b:15},{a:8,b:15}], ratingChanges:[] },
+    { id:'dm051', date:'2025-04-10', teamA:['d3','d5'], teamB:['d7','d9'], scoring:'standard', points:'11', scores:[{a:11,b:6}], ratingChanges:[] },
+    { id:'dm052', date:'2025-04-10', teamA:['d10','d6'], teamB:['d8','d4'], scoring:'rally', points:'15', scores:[{a:10,b:15},{a:15,b:12},{a:13,b:15}], ratingChanges:[] },
+    { id:'dm053', date:'2025-04-22', teamA:['d4','d5'], teamB:['d10','d7'], scoring:'standard', points:'11', scores:[{a:11,b:8}], ratingChanges:[] },
+    { id:'dm054', date:'2025-04-22', teamA:['d8','d2'], teamB:['d10','d4'], scoring:'rally', points:'21', scores:[{a:21,b:16},{a:21,b:16}], ratingChanges:[] },
+    { id:'dm055', date:'2025-04-22', teamA:['d4','d3'], teamB:['d1','d7'], scoring:'standard', points:'11', scores:[{a:8,b:11}], ratingChanges:[] },
+    { id:'dm056', date:'2025-04-22', teamA:['d9','d8'], teamB:['d1','d5'], scoring:'standard', points:'11', scores:[{a:6,b:11}], ratingChanges:[] },
+    { id:'dm057', date:'2025-05-01', teamA:['d9','d10'], teamB:['d6','d7'], scoring:'rally', points:'15', scores:[{a:15,b:10},{a:9,b:15},{a:10,b:15}], ratingChanges:[] },
+    { id:'dm058', date:'2025-05-01', teamA:['d8','d10'], teamB:['d5','d7'], scoring:'standard', points:'11', scores:[{a:5,b:11},{a:6,b:11}], ratingChanges:[] },
+    { id:'dm059', date:'2025-05-01', teamA:['d4','d5'], teamB:['d8','d1'], scoring:'standard', points:'11', scores:[{a:11,b:7},{a:11,b:5}], ratingChanges:[] },
+    { id:'dm060', date:'2025-05-01', teamA:['d2','d3'], teamB:['d9','d10'], scoring:'rally', points:'15', scores:[{a:13,b:15}], ratingChanges:[] }
+  ];
+
+    return { players: players, matches: matches };
+})();
+
+// Deep clone demo data for active session (mutated during demo, reset on exit)
+function loadDemoData() {
+  players = JSON.parse(JSON.stringify(DEMO_DATA.players));
+  matches = JSON.parse(JSON.stringify(DEMO_DATA.matches));
+
+  // Reset all player stats — we replay from scratch so ratingChanges are accurate
+  players.forEach(p => {
+    p.rating        = STARTING_RATING;
+    p.games         = 0;
+    p.ratingHistory = [STARTING_RATING];
+    p.last5         = [];
+    p.clutchW       = 0;
+    p.clutchL       = 0;
+  });
+
+  // Replay all matches chronologically to compute ratingChanges on each
+  [...matches]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(m => {
+      const result = demoComputeRatings(m.teamA, m.teamB, m.scores);
+      if (result) {
+        // Store computed ratingChanges on the match object
+        m.ratingChanges = result.ratingChanges;
+        // Apply updated player stats so next match computes from correct base
+        result.updatedPlayers.forEach(up => {
+          const p = players.find(pl => pl.id === up.id);
+          if (p) Object.assign(p, up);
+        });
+      }
+    });
+
+  // Build pairs from fully replayed match data
+  demoBuildPairs();
+}
+
+function resetDemoData() {
+  players = [];
+  matches = [];
+  pairs   = [];
+  isDemoMode = false;
+}
+
+// ── Demo-mode local rating computation ──
+// Mirrors Code.gs computeRatings_ exactly.
+// ONLY called in demo mode — never touches backend.
+function demoComputeRatings(teamA, teamB, scores) {
+  const kFactor = K_FACTOR, kScale = K_SCALE;
+  const p1 = players.find(p => p.id === teamA[0]);
+  const p2 = players.find(p => p.id === teamA[1]);
+  const p3 = players.find(p => p.id === teamB[0]);
+  const p4 = players.find(p => p.id === teamB[1]);
+  if (!p1 || !p2 || !p3 || !p4) return null;
+
+  function getK(g) {
+    if (g < 5)  return kFactor;
+    if (g < 10) return kFactor * 0.85;
+    if (g < 20) return kFactor * 0.70;
+    return kFactor * 0.55;
+  }
+
+  const rA = (p1.rating + p2.rating) / 2;
+  const rB = (p3.rating + p4.rating) / 2;
+  let totalDeltaA = 0;
+  scores.forEach(s => {
+    const tot = s.a + s.b; if (!tot) return;
+    const actualA = s.a / tot;
+    const expectedA = 1 / (1 + Math.pow(10, (rB - rA) / 4));
+    const avgK = (getK(p1.games) + getK(p2.games)) / 2;
+    totalDeltaA += (avgK / kScale) * (actualA - expectedA);
+  });
+
+  const n = scores.length;
+  const deltaA = parseFloat((totalDeltaA / n).toFixed(3));
+  const deltaB = parseFloat((-totalDeltaA / n).toFixed(3));
+  const aWon  = scores.filter(s => s.a > s.b).length > scores.filter(s => s.b > s.a).length;
+  const aIsUD = rA < rB;
+
+  const ratingChanges = [], updatedPlayers = [];
+  [[p1, p2, deltaA, aWon, aIsUD], [p3, p4, deltaB, !aWon, !aIsUD]].forEach(([pa, pb, delta, won, isUD]) => {
+    [pa, pb].forEach(player => {
+      const oldRating = player.rating;
+      const newRating = parseFloat(Math.max(2.0, Math.min(8.0, oldRating + delta)).toFixed(2));
+      player.rating        = newRating;
+      player.games        += 1;
+      player.ratingHistory = [...(player.ratingHistory || []), newRating].slice(-10);
+      player.last5         = [...(player.last5 || []), won ? 'W' : 'L'].slice(-5);
+      if (isUD) { won ? player.clutchW++ : player.clutchL++; }
+      ratingChanges.push({ id: player.id, name: player.name, oldRating, newRating, delta });
+      updatedPlayers.push({ ...player });
+    });
+  });
+  return { ratingChanges, updatedPlayers };
+}
+
+function demoBuildPairs() {
+  pairs = [];
+  [...matches].sort((a, b) => a.date.localeCompare(b.date)).forEach(m => {
+    applyMatchToPair(m.teamA[0], m.teamA[1], m, true);
+    applyMatchToPair(m.teamB[0], m.teamB[1], m, false);
+  });
+}
+
 // == Config (overwritten by getConfig on load) ==
 let STARTING_RATING = 3.50;
 let K_FACTOR        = 32;
@@ -2977,23 +3289,62 @@ const MATCH_PAGE_SIZE = 25;
 // BACKEND API LAYER
 // ==========================================================
 
+// GOVERNANCE RULE: Zero backend calls in demo mode.
+// Both callBackend and callBackendGet enforce this at the
+// network boundary — if isDemoMode is true, no request is
+// ever made regardless of which code path called them.
+
+// POST request for all authenticated calls
 async function callBackend(payload) {
+  // ── GOVERNANCE HARD STOP ──
+  if (isDemoMode) {
+    throw new Error('[Demo Mode] Backend call blocked: action=' + (payload.action || 'unknown') + '. All demo operations must use local computation only.');
+  }
   const res = await fetch(GAS_URL, {
     method:  'POST',
-    // text/plain avoids CORS preflight on cross-origin requests
-    // GAS accepts this and returns JSON regardless
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body:    JSON.stringify(payload),
-    // no-cors would hide errors; use cors (default) so we see real failures
-    redirect: 'follow'
+    body:    JSON.stringify(payload)
   });
   if (!res.ok) throw new Error('Network error: ' + res.status);
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); }
-  catch(e) { throw new Error('Bad response from server: ' + text.substring(0, 100)); }
+  catch(e) { throw new Error('Bad response: ' + text.substring(0, 80)); }
   if (!data.ok) throw new Error(data.error || 'Backend error');
   return data;
+}
+
+// JSONP GET for lightweight public calls (getConfig, getVersion)
+// Avoids CORS entirely by using script tag injection
+function callBackendGet(action) {
+  // ── GOVERNANCE HARD STOP ──
+  if (isDemoMode) {
+    throw new Error('[Demo Mode] Backend GET blocked: action=' + action + '. Demo mode uses local data only.');
+  }
+  return new Promise((resolve, reject) => {
+    const cbName = '_gc_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Request timeout'));
+    }, 10000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(data) {
+      cleanup();
+      if (data.ok) resolve(data);
+      else reject(new Error(data.error || 'Backend error'));
+    };
+
+    script.src = GAS_URL + '?action=' + action + '&callback=' + cbName;
+    script.onerror = () => { cleanup(); reject(new Error('Script load failed')); };
+    document.head.appendChild(script);
+  });
 }
 
 function makeRequestId() {
@@ -3131,44 +3482,136 @@ function applyMatchToPair(id1, id2, m, isTeamA) {
 // ==========================================================
 
 async function startup() {
-  // 1. Load config from backend (no auth needed)
+  // ── Step 0: Always reset UI to known clean state before anything else ──
+  // Prevents previous session state leaking behind the password screen
+  _resetAppUI();
+
+  // ── Step 1: Load config via JSONP GET (no CORS issues) ──
   try {
-    const cfg = await callBackend({ action: 'getConfig' });
+    const cfg = await callBackendGet('getConfig');
     STARTING_RATING  = cfg.startingRating || 3.50;
     K_FACTOR         = cfg.kFactor        || 32;
     K_SCALE          = cfg.kScale         || 30;
     lastKnownVersion = cfg.writeVersion   || 0;
   } catch(e) {
-    // Config fetch failed — show a warning on the password screen
-    // but still allow login attempt (will show real error then)
     console.warn('Config fetch failed:', e.message);
-    // Show subtle status so developer can diagnose
     const hint = document.getElementById('pwHint');
     if (hint) hint.textContent = '⚠ Cannot reach server. Check connection.';
   }
 
-  // 2. Check session storage
+  // ── Step 2: Check session storage ──
   const savedPassword = loadSession();
   if (savedPassword) {
     APP_AUTH_TOKEN = savedPassword;
     try {
       await callBackend({ action: 'login', password: savedPassword });
+      // Session valid — go straight to app
       launchApp();
       return;
     } catch(e) {
+      // Session invalid (password changed, or network error) — clear and show login
       clearSession();
       APP_AUTH_TOKEN = '';
     }
   }
 
-  // 3. Show password screen
+  // ── Step 3: Show password screen ──
   showPasswordScreen();
 }
 
+// Resets the entire UI to the pre-login state.
+// Called at startup and on exitDemoMode to guarantee a clean slate.
+function _resetAppUI() {
+  // Hide app shell and all chrome
+  document.getElementById('appShell').style.display    = 'none';
+  document.getElementById('navBar').classList.remove('visible');
+  document.getElementById('appHeader').classList.remove('visible');
+  document.getElementById('addPlayerArea').classList.remove('visible');
+
+  // Hide demo banner and remove demo offsets
+  document.getElementById('demoBanner').classList.remove('show');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('demo-offset'));
+
+  // Hide password screen (will be shown explicitly by showPasswordScreen)
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('ballDeco1').style.display = 'none';
+  document.getElementById('ballDeco2').style.display = 'none';
+
+  // Close any open modals
+  ['removeModal','deleteMatchModal','reinstateModal','tooltipModal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+
+  // Reset any open forms
+  try { closeAddForm(); } catch(e) {}
+
+  // Reset demo mode flag
+  isDemoMode = false;
+}
+
 function showPasswordScreen() {
-  document.getElementById('pwScreen').style.display = 'flex';
-  document.getElementById('ballDeco1').style.display = 'block';
-  document.getElementById('ballDeco2').style.display = 'block';
+  // Guarantee app is fully hidden before showing password screen
+  document.getElementById('appShell').style.display    = 'none';
+  document.getElementById('navBar').classList.remove('visible');
+  document.getElementById('appHeader').classList.remove('visible');
+  document.getElementById('demoBanner').classList.remove('show');
+
+  // Show password screen
+  document.getElementById('pwScreen').style.display   = 'flex';
+  document.getElementById('ballDeco1').style.display  = 'block';
+  document.getElementById('ballDeco2').style.display  = 'block';
+}
+
+// ═══════════════════════════════════════════════
+// DEMO MODE ENTRY / EXIT
+// ═══════════════════════════════════════════════
+
+function enterDemoMode() {
+  isDemoMode = true;
+
+  // Hide password screen, show app
+  document.getElementById('pwScreen').style.display    = 'none';
+  document.getElementById('ballDeco1').style.display   = 'none';
+  document.getElementById('ballDeco2').style.display   = 'none';
+  document.getElementById('appShell').style.display    = 'block';
+  document.getElementById('navBar').classList.add('visible');
+  document.getElementById('appHeader').classList.add('visible');
+  document.getElementById('addPlayerArea').classList.add('visible');
+  document.getElementById('headerTitle').textContent   = 'Players';
+  document.getElementById('headerBadge').style.display = 'block';
+
+  // Show demo banner and offset all screens
+  document.getElementById('demoBanner').classList.add('show');
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('demo-offset'));
+
+  // Load demo data and render
+  loadDemoData();
+  buildPairsFromMatches();
+  renderPlayers();
+  renderAnalytics();
+  renderLeaderboard();
+
+  // Navigate to players screen
+  navigateTo('players');
+}
+
+function exitDemoMode() {
+  // Reset all demo data
+  resetDemoData();
+
+  // Reset full UI to clean pre-login state
+  _resetAppUI();
+
+  // Clear any running sync interval
+  if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+
+  // Show fresh password screen
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwErrorMsg').classList.remove('visible');
+  document.getElementById('pwInput').classList.remove('pw-error');
+  document.getElementById('pwHint').textContent = 'Shared with your group by the organiser';
+  showPasswordScreen();
 }
 
 // ==========================================================
@@ -3296,23 +3739,24 @@ async function launchApp() {
 // ==========================================================
 
 function startBackgroundSync() {
+  if (isDemoMode) return; // Never sync in demo mode
   if (syncInterval) clearInterval(syncInterval);
   syncInterval = setInterval(async () => {
+    if (isDemoMode) return; // Extra guard in case mode changed mid-interval
     try {
-      const res = await callBackend({ action: 'getVersion' });
+      const res = await callBackendGet('getVersion');
       if (res.writeVersion !== lastKnownVersion) {
-        // Something changed = fetch fresh data
         lastKnownVersion = res.writeVersion;
         await refreshAllData();
       }
     } catch(e) {
-      // Silent fail = sync will retry in 5 minutes
       console.warn('Background sync failed:', e.message);
     }
-  }, 5 * 60 * 1000); // 5 minutes
+  }, 5 * 60 * 1000);
 }
 
 async function refreshAllData() {
+  if (isDemoMode) return; // Demo data is local only — never refresh from backend
   try {
     const [playersRes, matchesRes] = await Promise.all([
       callBackend(getPayload('getPlayers')),
@@ -3523,11 +3967,12 @@ async function saveEdit(id) {
   lockUI();
   document.getElementById('editSave-' + id).disabled = true;
   try {
-    await callBackend(getPayload('editPlayer', {
-      playerId: id,
-      name: newName,
-      requestId: makeRequestId()
-    }));
+    if (!isDemoMode) {
+      await callBackend(getPayload('editPlayer', {
+        playerId: id, name: newName, requestId: makeRequestId()
+      }));
+    }
+    // Apply locally (both demo and real — real backend already confirmed)
     const player = players.find(p => p.id === id);
     if (player) player.name = newName;
     currentEditId = null;
@@ -3592,14 +4037,18 @@ async function confirmAddPlayer() {
   lockUI();
   document.getElementById('addConfirmBtn').disabled = true;
   try {
-    const res = await callBackend(getPayload('addPlayer', {
-      name: newName,
-      startingRating: startRounded,
-      requestId: makeRequestId()
-    }));
-    // Add to local state with backend-assigned id
+    let newId;
+    if (isDemoMode) {
+      // Demo: assign local id, no backend call
+      newId = 'd_' + Date.now();
+    } else {
+      const res = await callBackend(getPayload('addPlayer', {
+        name: newName, startingRating: startRounded, requestId: makeRequestId()
+      }));
+      newId = res.playerId;
+    }
     players.push({
-      id: res.playerId, name: newName, status: 'active',
+      id: newId, name: newName, status: 'active',
       rating: startRounded, games: 0, removedDate: null,
       ratingHistory: [startRounded], last5: [], clutchW: 0, clutchL: 0
     });
@@ -3639,7 +4088,9 @@ async function confirmRemovePlayer() {
   document.getElementById('removeSpinner').classList.add('show');
   lockUI();
   try {
-    await callBackend(getPayload('removePlayer', { playerId: id, requestId: makeRequestId() }));
+    if (!isDemoMode) {
+      await callBackend(getPayload('removePlayer', { playerId: id, requestId: makeRequestId() }));
+    }
     player.status = 'inactive';
     player.removedDate = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     document.getElementById('removeModal').classList.remove('show');
@@ -3689,7 +4140,9 @@ async function confirmReinstate() {
   document.getElementById('reinstateSpinner').classList.add('show');
   lockUI();
   try {
-    await callBackend(getPayload('reinstatePlayer', { playerId: id, requestId: makeRequestId() }));
+    if (!isDemoMode) {
+      await callBackend(getPayload('reinstatePlayer', { playerId: id, requestId: makeRequestId() }));
+    }
     player.status = 'active';
     player.removedDate = null;
     document.getElementById('reinstateModal').classList.remove('show');
@@ -3721,25 +4174,41 @@ function switchAnalyticsTab(tab) {
 }
 
 function renderPlayerChips() {
-  const sorted = [...players].sort((a,b) => {
+  const emptyEl   = document.getElementById('analyticsIndividualEmpty');
+  const cardsEl   = document.getElementById('individualMetricCards');
+  const chipsWrap = document.getElementById('playerChips');
+
+  const sorted     = [...players].sort((a,b) => {
     if (a.status !== b.status) return a.status === 'active' ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
-  const wrap = document.getElementById('playerChips');
-  wrap.innerHTML = sorted.map((p, i) => {
+  const activePlayers = sorted.filter(p => p.status === 'active');
+
+  // No active players — show empty state, hide metric cards and chips
+  if (activePlayers.length === 0) {
+    chipsWrap.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    if (cardsEl) cardsEl.style.display = 'none';
+    return;
+  }
+
+  // Has players — show chips and metric cards, hide empty state
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (cardsEl) cardsEl.style.display = 'block';
+
+  chipsWrap.innerHTML = sorted.map((p, i) => {
     const isInactive = p.status === 'inactive';
     return `<div class="player-chip ${i===0?'active':''} ${isInactive?'inactive-chip':''}" id="chip-${p.id}" onclick="selectPlayerChip('${p.id}')">
       <div class="chip-avatar">${getInitials(p.name)}</div>
-      <span class="chip-name">${escHtml(p.name)}${isInactive?' =':''}</span>
+      <span class="chip-name">${escHtml(p.name)}${isInactive?' ·':''}</span>
     </div>`;
   }).join('');
-  const firstActive = sorted.find(p => p.status === 'active');
-  if (firstActive) {
-    selectedPlayer = firstActive.id;
-    const chip = document.getElementById('chip-' + firstActive.id);
-    if (chip) { document.querySelectorAll('.player-chip').forEach(c => c.classList.remove('active')); chip.classList.add('active'); }
-    renderIndividualMetrics(firstActive.id);
-  }
+
+  const firstActive = activePlayers[0];
+  selectedPlayer = firstActive.id;
+  const chip = document.getElementById('chip-' + firstActive.id);
+  if (chip) { document.querySelectorAll('.player-chip').forEach(c => c.classList.remove('active')); chip.classList.add('active'); }
+  renderIndividualMetrics(firstActive.id);
 }
 
 function selectPlayerChip(id) {
@@ -3763,20 +4232,30 @@ function renderRatingTrend(p) {
   const start   = history[0];
   const current = history[history.length - 1];
   const delta   = current - start;
+
   document.getElementById('ratingBig').textContent = current.toFixed(2);
   const deltaEl = document.getElementById('ratingDelta');
   deltaEl.textContent = (delta >= 0 ? '▲ +' : '▼ ') + Math.abs(delta).toFixed(2);
   deltaEl.className = 'rating-delta ' + (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat');
-  document.getElementById('chartStart').textContent = history.length > 1 ? 'Match 1' : 'Start';
-  document.getElementById('chartEnd').textContent   = 'Match ' + history.length;
+
+  // history[0] is always the starting baseline (not a match result)
+  // history[1] = Match 1, history[2] = Match 2, etc.
+  const matchCount = history.length - 1; // number of actual matches in history
+  document.getElementById('chartStart').textContent = 'Start';
+  document.getElementById('chartEnd').textContent   =
+    matchCount === 0 ? 'Start' :
+    matchCount === 1 ? 'Match 1' : 'Match ' + matchCount;
+
   drawTrendChart(history);
 }
 
 function drawTrendChart(history) {
   const svg = document.getElementById('trendChart');
   const W = 300, H = 80, pad = 6;
+
+  // Need at least 2 points (start + 1 match) to draw a line
   if (history.length < 2) {
-    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#7a7a7a" font-size="11" font-family="Barlow">Not enough data</text>`;
+    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#7a7a7a" font-size="11" font-family="Barlow, sans-serif">No matches yet</text>`;
     return;
   }
   const mn = Math.min(...history) - 0.05;
@@ -4003,6 +4482,17 @@ function validateStep(n) {
 function renderPlayerSelectGrid() {
   const active = players.filter(p => p.status === 'active');
   const grid   = document.getElementById('playerSelectGrid');
+
+  if (active.length === 0) {
+    // Show a friendly notice spanning both columns
+    grid.innerHTML = `<div class="no-players-notice" style="grid-column:1/-1;">
+      <div class="no-players-notice-icon">👥</div>
+      <div class="no-players-notice-text">No Players Yet</div>
+      <div class="no-players-notice-sub">Add players on the Players screen first, then come back to log a match.</div>
+    </div>`;
+    return;
+  }
+
   grid.innerHTML = active.map(p =>
     `<div class="player-select-chip" id="psc-${p.id}" onclick="togglePlayerSelect('${p.id}')">
       <div class="psc-avatar" id="pscav-${p.id}">${getInitials(p.name)}</div>
@@ -4143,31 +4633,53 @@ async function submitMatch() {
   document.getElementById('submittingOverlay').classList.add('show');
 
   try {
-    const res = await callBackend(getPayload('addMatch', {
-      date:    am.date,
-      teamA:   am.teamA,
-      teamB:   am.teamB,
-      scoring: am.scoring,
-      points:  am.points,
-      scores:  am.scores,
-      requestId: makeRequestId()
-    }));
+    let ratingChanges, updatedPlayers, matchRecord;
 
-    // Apply backend-computed updated players
-    res.updatedPlayers.forEach(up => {
-      const p = players.find(pl => pl.id === up.id);
-      if (p) Object.assign(p, up);
-    });
+    if (isDemoMode) {
+      // ── DEMO PATH: local computation only, zero backend calls ──
+      const result = demoComputeRatings(am.teamA, am.teamB, am.scores);
+      if (!result) throw new Error('Players not found in demo data.');
 
-    // Append confirmed match record
-    matches.push(res.match);
-    lastKnownVersion = res.writeVersion || lastKnownVersion;
+      ratingChanges  = result.ratingChanges;
+      updatedPlayers = result.updatedPlayers;
 
-    // Rebuild pairs from updated data
+      // Apply updated players to local demo state
+      updatedPlayers.forEach(up => {
+        const p = players.find(pl => pl.id === up.id);
+        if (p) Object.assign(p, up);
+      });
+
+      // Build local match record
+      matchRecord = {
+        id: 'demo_' + Date.now(),
+        date: am.date, teamA: am.teamA, teamB: am.teamB,
+        scoring: am.scoring, points: am.points,
+        scores: am.scores, ratingChanges
+      };
+      matches.push(matchRecord);
+
+    } else {
+      // ── REAL PATH: backend computes, returns authoritative state ──
+      const res = await callBackend(getPayload('addMatch', {
+        date: am.date, teamA: am.teamA, teamB: am.teamB,
+        scoring: am.scoring, points: am.points,
+        scores: am.scores, requestId: makeRequestId()
+      }));
+      ratingChanges  = res.ratingChanges;
+      updatedPlayers = res.updatedPlayers;
+      matchRecord    = res.match;
+
+      updatedPlayers.forEach(up => {
+        const p = players.find(pl => pl.id === up.id);
+        if (p) Object.assign(p, up);
+      });
+      matches.push(matchRecord);
+      lastKnownVersion = res.writeVersion || lastKnownVersion;
+    }
+
     buildPairsFromMatches();
-
     document.getElementById('submittingOverlay').classList.remove('show');
-    renderRatingChanges(res.ratingChanges);
+    renderRatingChanges(ratingChanges);
     document.getElementById('submitSuccess').classList.add('show');
     renderPlayers();
     renderAnalytics();
@@ -4175,12 +4687,11 @@ async function submitMatch() {
     renderMatchList();
 
   } catch(e) {
-    // Restore wizard state on error
     document.getElementById('submittingOverlay').classList.remove('show');
     document.getElementById('stepProgress').style.display = 'flex';
     document.getElementById('stepNav').style.display = 'flex';
     showStep(am.step);
-    showError('Failed to submit match. Please try again.');
+    showError(isDemoMode ? 'Demo error: ' + e.message : 'Failed to submit match. Please try again.');
   } finally { unlockUI(); }
 }
 
@@ -4222,6 +4733,17 @@ function renderLbIndividual() {
     return b.rating - a.rating;
   });
   skelEl.style.display = 'none'; listEl.style.display = 'flex';
+
+  // Empty state — no players at all
+  if (sorted.length === 0) {
+    listEl.innerHTML = `<div class="lb-empty">
+      <div class="lb-empty-icon">📊</div>
+      <div class="lb-empty-title">No Individual Data Yet</div>
+      <div class="lb-empty-sub">Individual stats appear after players are added and matches are logged.</div>
+    </div>`;
+    return;
+  }
+
   listEl.innerHTML = sorted.map((p, i) => {
     const rank = i + 1;
     const rankClass = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
@@ -4533,22 +5055,41 @@ async function confirmDeleteMatch() {
   document.getElementById('deleteMatchSpinner').classList.add('show');
   lockUI();
   try {
-    const res = await callBackend(getPayload('deleteMatch', { matchId: id, requestId: makeRequestId() }));
+    if (isDemoMode) {
+      // ── DEMO PATH: remove locally, replay ratings locally ──
+      const idx = matches.findIndex(m => m.id === id);
+      if (idx !== -1) matches.splice(idx, 1);
 
-    // Backend returns all updated players after full replay
-    players = res.updatedPlayers || players;
-    lastKnownVersion = res.writeVersion || lastKnownVersion;
+      // Reset all player stats to starting rating
+      players.forEach(p => {
+        p.rating = STARTING_RATING; p.games = 0;
+        p.ratingHistory = [STARTING_RATING]; p.last5 = [];
+        p.clutchW = 0; p.clutchL = 0;
+      });
 
-    // Remove match from local array
-    const idx = matches.findIndex(m => m.id === id);
-    if (idx !== -1) matches.splice(idx, 1);
+      // Replay remaining matches chronologically
+      [...matches].sort((a, b) => a.date.localeCompare(b.date)).forEach(m => {
+        const result = demoComputeRatings(m.teamA, m.teamB, m.scores);
+        if (result) {
+          result.updatedPlayers.forEach(up => {
+            const p = players.find(pl => pl.id === up.id);
+            if (p) Object.assign(p, up);
+          });
+        }
+      });
 
-    // Rebuild pairs from updated data
+    } else {
+      // ── REAL PATH: backend does full replay ──
+      const res = await callBackend(getPayload('deleteMatch', { matchId: id, requestId: makeRequestId() }));
+      players = res.updatedPlayers || players;
+      lastKnownVersion = res.writeVersion || lastKnownVersion;
+      const idx = matches.findIndex(m => m.id === id);
+      if (idx !== -1) matches.splice(idx, 1);
+    }
+
     buildPairsFromMatches();
-
     document.getElementById('deleteMatchModal').classList.remove('show');
     pendingDeleteMatchId = null;
-
     _renderMatchList();
     renderPlayers();
     renderAnalytics();
@@ -4604,40 +5145,12 @@ function clearMatchFilter() {
 // ==========================================================
 
 const TOOLTIPS = {
-  duprTrend:      { title:'DUPR Rating Trend',    body:'Your DUPR rating after each match, on a scale of 2.0=8.0. Shows your last 10 matches.
-
-📈 Best: Steep upward curve = improving fast.
-📉 Worst: Downward slide = time to regroup.
-
-Most club players sit between 3.0 and 4.5.' },
-  formIndex:      { title:'Form Index',            body:'Rolling score from your last 5 matches, weighted by opponent strength and point margin.
-
-🔥 On Fire: Dominant run = keep it up!
-🟢 Hot: Strong recent form.
-🟡 Warm: Mixed = could go either way.
-🔴 Cold: Rough patch. Time to heat up.' },
-  clutchRating:   { title:'Clutch Rating',         body:"Win rate when your team's combined rating was lower than your opponents' going in.
-
-📈 Best: 100% = you thrive under pressure!
-📉 Worst: 0% = tough when outgunned.
-
-No data = you haven't been the underdog yet." },
-  pairWinRate:    { title:'Partnership Win Rate',  body:'Win % for this pair (min 2 games to qualify).
-
-📈 Best: 100% = unbeaten as a duo!
-📉 Worst: 0% = yet to find their groove.
-
-⚠ = fewer than 4 games, treat with caution.' },
-  synergyScore:   { title:'Synergy Score',         body:'Actual win % minus expected win % from ratings. Positive = beating expectations together.
-
-⚡ Best: above +0.20 = real chemistry!
-⚠ Worst: below −0.20 = underperforming together.
-〰 Neutral: playing to your ratings.' },
-  dominanceScore: { title:'Dominance Score',       body:'Avg point margin per game together. Positive = winning by that margin on average.
-
-📈 Best: large positive (e.g. +6) = dominant!
-📉 Worst: large negative = tough together.
-Near zero = closely contested games.' }
+  duprTrend:      { title: 'DUPR Rating Trend',    body: 'Your DUPR rating after each match, on a scale of 2.0-8.0. Shows your last 10 matches.\n\n📈 Best: Steep upward curve — improving fast.\n📉 Worst: Downward slide — time to regroup.\n\nMost club players sit between 3.0 and 4.5.' },
+  formIndex:      { title: 'Form Index',            body: 'Rolling score from your last 5 matches, weighted by opponent strength and point margin.\n\n🔥 On Fire: Dominant run — keep it up!\n🟢 Hot: Strong recent form.\n🟡 Warm: Mixed — could go either way.\n🔴 Cold: Rough patch. Time to heat up.' },
+  clutchRating:   { title: 'Clutch Rating',         body: "Win rate when your team's combined rating was lower than your opponents' going in.\n\n📈 Best: 100% — you thrive under pressure!\n📉 Worst: 0% — tough when outgunned.\n\nNo data = you haven't been the underdog yet." },
+  pairWinRate:    { title: 'Partnership Win Rate',  body: 'Win % for this pair (min 2 games to qualify).\n\n📈 Best: 100% — unbeaten as a duo!\n📉 Worst: 0% — yet to find their groove.\n\n⚠ = fewer than 4 games, treat with caution.' },
+  synergyScore:   { title: 'Synergy Score',         body: 'Actual win % minus expected win % from ratings. Positive = beating expectations together.\n\n⚡ Best: above +0.20 — real chemistry!\n⚠ Worst: below −0.20 — underperforming together.\n〰 Neutral: playing to your ratings.' },
+  dominanceScore: { title: 'Dominance Score',       body: 'Avg point margin per game together. Positive = winning by that margin on average.\n\n📈 Best: large positive (e.g. +6) — dominant!\n📉 Worst: large negative — tough together.\nNear zero = closely contested games.' }
 };
 
 function showTooltipKey(key) { const t = TOOLTIPS[key]; if (t) showTooltip(t.title, t.body); }
@@ -4665,29 +5178,15 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('gesturestart',  e => e.preventDefault(), { passive:false });
   document.addEventListener('gesturechange', e => e.preventDefault(), { passive:false });
   document.addEventListener('gestureend',    e => e.preventDefault(), { passive:false });
-  let lastTap = 0;
-  document.addEventListener('touchend', e => {
-    const now = Date.now();
-    if (now - lastTap < 300) e.preventDefault();
-    lastTap = now;
-  }, { passive:false });
+  // Double-tap prevention removed — was blocking button taps
+  // Zoom is prevented via viewport meta user-scalable=no + gesturestart handler
 
   // Boot
   startup();
 });
 </script>
 
-<!-- Tooltip Info Sheet -->
-<div class="modal-overlay" id="tooltipModal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="tooltip-sheet-title" id="tooltipSheetTitle"></div>
-    <div class="tooltip-sheet-body" id="tooltipSheetBody"></div>
-    <div class="modal-btns" style="margin-top:20px;">
-      <button class="modal-cancel" onclick="closeTooltipModal()">Got it</button>
-    </div>
-  </div>
-</div>
+<!-- Tooltip Info Sheet (inside app-container for correct stacking) -->
 </div><!-- /#app-container -->
 </body>
 </html>
