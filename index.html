@@ -2980,11 +2980,18 @@ const MATCH_PAGE_SIZE = 25;
 async function callBackend(payload) {
   const res = await fetch(GAS_URL, {
     method:  'POST',
-    headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
-    body:    JSON.stringify(payload)
+    // text/plain avoids CORS preflight on cross-origin requests
+    // GAS accepts this and returns JSON regardless
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body:    JSON.stringify(payload),
+    // no-cors would hide errors; use cors (default) so we see real failures
+    redirect: 'follow'
   });
   if (!res.ok) throw new Error('Network error: ' + res.status);
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e) { throw new Error('Bad response from server: ' + text.substring(0, 100)); }
   if (!data.ok) throw new Error(data.error || 'Backend error');
   return data;
 }
@@ -3127,27 +3134,28 @@ async function startup() {
   // 1. Load config from backend (no auth needed)
   try {
     const cfg = await callBackend({ action: 'getConfig' });
-    STARTING_RATING = cfg.startingRating || 3.50;
-    K_FACTOR        = cfg.kFactor        || 32;
-    K_SCALE         = cfg.kScale         || 30;
-    lastKnownVersion = cfg.writeVersion  || 0;
+    STARTING_RATING  = cfg.startingRating || 3.50;
+    K_FACTOR         = cfg.kFactor        || 32;
+    K_SCALE          = cfg.kScale         || 30;
+    lastKnownVersion = cfg.writeVersion   || 0;
   } catch(e) {
-    // Config fetch failed = use defaults, still allow login attempt
-    console.warn('Config fetch failed, using defaults:', e.message);
+    // Config fetch failed — show a warning on the password screen
+    // but still allow login attempt (will show real error then)
+    console.warn('Config fetch failed:', e.message);
+    // Show subtle status so developer can diagnose
+    const hint = document.getElementById('pwHint');
+    if (hint) hint.textContent = '⚠ Cannot reach server. Check connection.';
   }
 
   // 2. Check session storage
   const savedPassword = loadSession();
   if (savedPassword) {
     APP_AUTH_TOKEN = savedPassword;
-    // Verify session is still valid against backend
     try {
       await callBackend({ action: 'login', password: savedPassword });
-      // Session valid = skip password screen
       launchApp();
       return;
     } catch(e) {
-      // Session invalid (password changed?) = clear and show login
       clearSession();
       APP_AUTH_TOKEN = '';
     }
@@ -3198,6 +3206,15 @@ async function handleEnter() {
     saveSession(val);
     showWelcome();
   } catch(e) {
+    // Show actual error so user/developer can diagnose
+    const msg = document.getElementById('pwErrorMsg');
+    msg.querySelector ? null : null; // ensure element exists
+    // Show specific error if it's a backend/network issue vs wrong password
+    const errText = e.message.includes('Invalid password')
+      ? 'Incorrect password. Please try again.'
+      : 'Connection error: ' + e.message;
+    const errEl = document.getElementById('pwErrorMsg');
+    if (errEl) errEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' + errText;
     showPwError();
     isLoading = false;
     btn.disabled = false;
